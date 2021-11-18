@@ -15,5 +15,5 @@ curl -sSL https://github.com/mrhaydendp/Split-Apk-Installer/raw/main/Split%20Apk
 
 **Note You'll Need System-Wide ADB**
 ```
-W.I.P
+iex ((New-Object System.Net.WebClient).DownloadString('https://github.com/mrhaydendp/Split-Apk-Installer/raw/main/Split%20Apk%20Installer.ps1'))
 ```
