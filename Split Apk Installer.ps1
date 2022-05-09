@@ -1,4 +1,4 @@
-# Appinstaller Function: Detects if Selected File is an Apk or Split Apk & Adjusts Installation Method
+# Appinstaller Function: Detect if Selected File is an Apk or Split Apk & Adjusts Installation Method
 function appinstaller {
     if ($args[0] -like '*.apk'){
         adb install -g $args[0]
@@ -17,8 +17,9 @@ function appinstaller {
 # Open File Dialog
 Add-Type -AssemblyName System.Windows.Forms
 $FileBrowser = New-Object System.Windows.Forms.OpenFileDialog
-$FileBrowser.Multiselect = "True"
+$FileBrowser.Title = "Select Split APK(s) to Install"
 $FileBrowser.Filter = "Split APK File (*.apkm)|*.apkm|Apk File (*.apk)|*.apk|All Files (*.*)|*.*"
+$FileBrowser.Multiselect = "True"
 [void]$FileBrowser.ShowDialog()
 
 # Loops Appinstaller for Each File
