@@ -1,18 +1,27 @@
-#!/bin/powershell
-Add-Type -AssemblyName System.Windows.Forms
+# Appinstaller Function: Detects if Selected File is an Apk or Split Apk & Adjusts Installation Method
+function appinstaller {
+    if ($args[0] -like '*.apk'){
+        adb install -g $args[0]
+    } elseif ($args[0] -like '*.apkm'){
+        Copy-Item $args -Destination $args".zip"
+        Expand-Archive $args".zip" -DestinationPath .\Split
+        $file = (Get-ChildItem .\Split\*.apk)
+        adb install-multiple -g "$file" | Out-Host
+        Remove-Item -r .\Split
+        Remove-Item $args".zip"
+    } else {
+        Write-Host $args[0] "Is Unsupported"
+    }
+}
 
-# Select Split Apk File (.apkm)
+# Open File Dialog
+Add-Type -AssemblyName System.Windows.Forms
 $FileBrowser = New-Object System.Windows.Forms.OpenFileDialog
-$FileBrowser.filter = "Apkm (*.apkm)| *.apkm"
+$FileBrowser.Multiselect = "True"
+$FileBrowser.Filter = "Split APK File (*.apkm)|*.apkm|Apk File (*.apk)|*.apk|All Files (*.*)|*.*"
 [void]$FileBrowser.ShowDialog()
 
-# For Each File Selected Unzip and Install Split Configs
-foreach($array in $FileBrowser.FileName)
-{
-    Copy-Item $array -Destination $array".zip"
-    Expand-Archive $array".zip" -DestinationPath .\Split
-    $file = (Get-ChildItem .\Split\*.apk)
-    adb install-multiple $file
-    Remove-Item -r .\Split
-    Remove-Item $array".zip"
+# Loops Appinstaller for Each File
+foreach ($file in $FileBrowser.FileNames){
+    appinstaller "$file"
 }
