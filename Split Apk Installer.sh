@@ -1,14 +1,28 @@
-#!/bin/bash
+#!/usr/bin/env sh
 
-# Select .apkm Files & Copy to Current Directory
-split=$(zenity --file-selection --multiple --title="Select a Split Apk File" --file-filter="*.apkm") &&
-echo "$split" | tr '|' '\n' | xargs -I file cp "file" ./ &&
+# Change Application Installation Method Based on the File Type
+appinstaller () {
+    case "$1" in
+    *.apk)
+        adb install -g "$1";;
+    *.apkm)
+        unzip "$1" -d ./Split
+        adb install-multiple -g ./Split/*.apk
+        rm -rf ./Split;;
+    esac
+}
 
-# For Every .apkm File in Current Directory: Unzip to Split Folder, Install With "adb install-multiple", Remove Split Folder & .apkm File
-for apkm in ./*.apkm
-do
-    unzip "$apkm" -d ./Split &&
-    adb install-multiple ./Split/*.apk &&
-    rm -rf ./Split &&
-    rm "$apkm"
-done
+# Open File Dialog
+split=$(zenity --file-selection \
+--multiple --title="Select Split APK(s) to Install" \
+--file-filter="*.apk*" | tr '|' '\n')
+
+# Copy Selected Files to Current Directory & Run Through Appinstaller
+if [ "$split" != "" ]; then
+    echo "$split" | xargs -I file cp "file" ./
+    for app in ./*.apk*
+    do
+        appinstaller "$app"
+        rm "$app"
+    done
+fi
